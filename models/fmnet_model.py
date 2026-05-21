@@ -38,6 +38,10 @@ class FMNetModel(BaseModel):
         self.loss_metrics = self.losses['surfmnet_loss'](Cxy, Cyx, evals_x, evals_y)
         Pxy, Pyx = self.compute_permutation_matrix(feat_x, feat_y, bidirectional=True)
 
+        if 'diffusion_loss' in self.losses:
+            self.loss_metrics['l_diff'] = self.losses['diffusion_loss'](
+                Pxy, Pyx, evals_x, evals_y, evecs_x, evecs_y, evecs_trans_x, evecs_trans_y)
+
         # compute C
         Cxy_est = torch.bmm(evecs_trans_y, torch.bmm(Pyx, evecs_x))
 

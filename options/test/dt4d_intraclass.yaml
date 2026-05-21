@@ -10,7 +10,7 @@ visualize: true
 
 # path
 path:
-  resume_state: checkpoints/dt4d.pth
+  resume_state: experiments/dt4d/models/final.pth
   resume: false
 
 # datasets
@@ -19,7 +19,7 @@ datasets:
     name: Val
     type: PairDT4DDataset
     phase: test
-    data_root: ../data/DT4D_r/
+    data_root: /data/ytw/datasets/DT4D_r/
     inter_class: false
     return_evecs: true
     return_faces: true
@@ -33,7 +33,7 @@ networks:
     type: DiffusionNet
     in_channels: 128
     out_channels: 256
-    cache_dir: ../data/DT4D_r/diffusion
+    cache_dir: /data/ytw/datasets/DT4D_r/diffusion
     input_type: wks
   permutation:
     type: Similarity

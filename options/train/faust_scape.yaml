@@ -17,7 +17,7 @@ datasets:
     name: FaustTrain
     type: PairFaustDataset
     phase: train
-    data_root: ../data/FAUST_r
+    data_root: /data/ytw/datasets/FAUST_r
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -27,7 +27,7 @@ datasets:
     name: ScapeTrain
     type: PairScapeDataset
     phase: train
-    data_root: ../data/SCAPE_r
+    data_root: /data/ytw/datasets/SCAPE_r
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -37,7 +37,7 @@ datasets:
     name: FaustTest
     type: PairFaustDataset
     phase: test
-    data_root: ../data/FAUST_r
+    data_root: /data/ytw/datasets/FAUST_r
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -47,7 +47,7 @@ datasets:
     name: ScapeTest
     type: PairScapeDataset
     phase: test
-    data_root: ../data/SCAPE_r
+    data_root: /data/ytw/datasets/SCAPE_r
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -57,7 +57,7 @@ datasets:
     name: Shrec19Test
     type: PairShrec19Dataset
     phase: test
-    data_root: ../data/SHREC19_r
+    data_root: /data/ytw/datasets/SHREC19_r
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -72,7 +72,7 @@ networks:
     type: DiffusionNet
     in_channels: 128
     out_channels: 256
-    cache_dir: ../data/FAUST_r/diffusion
+    cache_dir: /data/ytw/datasets/FAUST_r/diffusion
     input_type: wks
   fmap_net:
     type: RegularizedFMNet
@@ -102,6 +102,11 @@ train:
     align_loss:
       type: SquaredFrobeniusLoss
       loss_weight: 1.0
+    diffusion_loss:
+      type: SynchronousDiffusionLoss
+      loss_weight: 1.0
+      num_random: 128
+      max_time: 1.0e-2
 
 # validation setting
 val:

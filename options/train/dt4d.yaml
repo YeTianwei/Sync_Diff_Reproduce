@@ -17,7 +17,7 @@ datasets:
     name: DT4DIntraTrain
     type: PairDT4DDataset
     phase: train
-    data_root: ../data/DT4D_r/
+    data_root: /data/ytw/datasets/DT4D_r/
     inter_class: False
     return_evecs: True
     return_faces: True
@@ -28,7 +28,7 @@ datasets:
     name: DT4DInterTrain
     type: PairDT4DDataset
     phase: train
-    data_root: ../data/DT4D_r/
+    data_root: /data/ytw/datasets/DT4D_r/
     inter_class: True
     return_evecs: True
     return_faces: True
@@ -39,7 +39,7 @@ datasets:
     name: DT4DTest
     type: PairDT4DDataset
     phase: test
-    data_root: ../data/DT4D_r/
+    data_root: /data/ytw/datasets/DT4D_r/
     inter_class: True
     return_evecs: True
     return_faces: True
@@ -56,7 +56,7 @@ networks:
     type: DiffusionNet
     in_channels: 128
     out_channels: 256
-    cache_dir: ../data/DT4D_r/diffusion
+    cache_dir: /data/ytw/datasets/DT4D_r/diffusion
     input_type: wks
   fmap_net:
     type: RegularizedFMNet
@@ -86,6 +86,11 @@ train:
     align_loss:
       type: SquaredFrobeniusLoss
       loss_weight: 1.0
+    diffusion_loss:
+      type: SynchronousDiffusionLoss
+      loss_weight: 1.0
+      num_random: 128
+      max_time: 1.0e-4
 
 # validation setting
 val:

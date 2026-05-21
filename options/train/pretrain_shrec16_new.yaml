@@ -26,9 +26,9 @@ datasets:
     return_dist: False
   train_dataset2:
     name: SmalTrain
-    type: PairSMALDataset
+    type: PairSmalDataset
     phase: train
-    data_root: ../data/smal/
+    data_root: /data/ytw/datasets/SMAL_r/
     interclass: False
     return_evecs: True
     return_faces: True
@@ -104,6 +104,11 @@ train:
     align_loss:
       type: SquaredFrobeniusLoss
       loss_weight: 1.0
+    diffusion_loss:
+      type: SynchronousDiffusionLoss
+      loss_weight: 1.0
+      num_random: 128
+      max_time: 1.0e-2
 
 # validation setting
 val:

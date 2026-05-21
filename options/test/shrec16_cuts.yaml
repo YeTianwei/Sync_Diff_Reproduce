@@ -60,6 +60,12 @@ train:
     align_loss:
       type: SquaredFrobeniusLoss
       loss_weight: 1.0
+    diffusion_loss:
+      type: SynchronousDiffusionLoss
+      loss_weight: 1.0
+      num_random: 128
+      max_time: 1.0e-2
+      bidirectional: false
 
 # validation setting
 val:

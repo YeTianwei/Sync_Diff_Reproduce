@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from utils.registry import LOSS_REGISTRY
 
@@ -13,6 +14,56 @@ class SquaredFrobeniusLoss(nn.Module):
     def forward(self, a, b):
         loss = torch.sum(torch.abs(a - b) ** 2, dim=(-2, -1))
         return self.loss_weight * torch.mean(loss)
+
+
+@LOSS_REGISTRY.register()
+class SynchronousDiffusionLoss(nn.Module):
+    """
+    Multiscale synchronous diffusion regularisation.
+
+    The pointwise maps are expected to follow the convention used in FMNetModel:
+    Pyx transfers functions from x to y, and Pxy transfers functions from y to x.
+    """
+
+    def __init__(self, loss_weight=1.0, num_random=128, max_time=1e-2, bidirectional=True):
+        super().__init__()
+        self.loss_weight = loss_weight
+        self.num_random = num_random
+        self.max_time = max_time
+        self.bidirectional = bidirectional
+
+    @staticmethod
+    def _diffuse(feats, evals, evecs, evecs_trans, times):
+        coeffs = torch.bmm(evecs_trans, feats)
+        scales = torch.exp(-evals.unsqueeze(-1) * times.unsqueeze(1))
+        return torch.bmm(evecs, coeffs * scales)
+
+    def _single_direction(self, P_src_tgt, P_tgt_src,
+                          evals_src, evals_tgt,
+                          evecs_src, evecs_tgt,
+                          evecs_trans_src, evecs_trans_tgt):
+        batch_size, num_src, _ = evecs_src.shape
+        funcs_src = torch.randn(batch_size, num_src, self.num_random,
+                                device=evecs_src.device, dtype=evecs_src.dtype)
+        funcs_src = F.normalize(funcs_src, p=2, dim=-1)
+        times = torch.rand(batch_size, self.num_random,
+                           device=evecs_src.device, dtype=evecs_src.dtype) * self.max_time
+
+        funcs_tgt = torch.bmm(P_src_tgt, funcs_src)
+        diffuse_src = self._diffuse(funcs_src, evals_src, evecs_src, evecs_trans_src, times)
+        diffuse_tgt = self._diffuse(funcs_tgt, evals_tgt, evecs_tgt, evecs_trans_tgt, times)
+        diffuse_tgt_src = torch.bmm(P_tgt_src, diffuse_tgt)
+
+        loss = torch.sum((diffuse_src - diffuse_tgt_src) ** 2, dim=(-2, -1))
+        return torch.mean(loss)
+
+    def forward(self, Pxy, Pyx, evals_x, evals_y, evecs_x, evecs_y, evecs_trans_x, evecs_trans_y):
+        loss = self._single_direction(Pyx, Pxy, evals_x, evals_y, evecs_x, evecs_y,
+                                      evecs_trans_x, evecs_trans_y)
+        if self.bidirectional:
+            loss += self._single_direction(Pxy, Pyx, evals_y, evals_x, evecs_y, evecs_x,
+                                           evecs_trans_y, evecs_trans_x)
+        return self.loss_weight * loss
 
 
 @LOSS_REGISTRY.register()
