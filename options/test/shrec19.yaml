@@ -35,7 +35,7 @@ networks:
     cache_dir: /data/ytw/datasets/SHREC19_r/diffusion
     input_type: wks
   fmap_net:
-    type: RegularizedFMNet
+    type: FasterRegularizedFMNet
     bidirectional: false
   permutation:
     type: Similarity

@@ -46,7 +46,7 @@ networks:
     cache_dir: /data/ytw/datasets/FAUST_r/diffusion
     input_type: wks
   fmap_net:
-    type: RegularizedFMNet
+    type: FasterRegularizedFMNet
     bidirectional: true
   permutation:
     type: Similarity

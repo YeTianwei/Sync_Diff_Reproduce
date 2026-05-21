@@ -77,7 +77,7 @@ networks:
     cache_dir: ../data/DT4D_r/diffusion
     input_type: xyz
   fmap_net:
-    type: RegularizedFMNet
+    type: FasterRegularizedFMNet
     bidirectional: true
   permutation:
     type: Similarity

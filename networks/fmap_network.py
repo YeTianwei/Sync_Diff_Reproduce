@@ -72,3 +72,56 @@ class RegularizedFMNet(nn.Module):
             Cyx = None
 
         return Cxy, Cyx
+
+
+@NETWORK_REGISTRY.register()
+class FasterRegularizedFMNet(nn.Module):
+    """Compute functional maps with a batched row-wise solve.
+
+    This is mathematically equivalent to RegularizedFMNet, but solves the K
+    independent KxK systems in one batched torch.linalg.solve call.
+    """
+
+    def __init__(self, lmbda=100, resolvant_gamma=0.5, bidirectional=False):
+        super(FasterRegularizedFMNet, self).__init__()
+        self.lmbda = lmbda
+        self.resolvant_gamma = resolvant_gamma
+        self.bidirectional = bidirectional
+
+    def compute_functional_map(self, feat_x, feat_y, evals_x, evals_y, evecs_trans_x, evecs_trans_y):
+        A = torch.bmm(evecs_trans_x, feat_x)  # [B, K, C]
+        B = torch.bmm(evecs_trans_y, feat_y)  # [B, K, C]
+
+        D = get_mask(evals_x, evals_y, self.resolvant_gamma)  # [B, K, K]
+
+        A_t = A.transpose(1, 2)  # [B, C, K]
+        A_A_t = torch.bmm(A, A_t)  # [B, K, K]
+        B_A_t = torch.bmm(B, A_t)  # [B, K, K]
+
+        coeff = A_A_t.unsqueeze(1) + self.lmbda * torch.diag_embed(D)  # [B, K, K, K]
+        rhs = B_A_t.unsqueeze(-1)  # [B, K, K, 1]
+        Cxy = torch.linalg.solve(coeff, rhs).squeeze(-1)  # [B, K, K]
+        return Cxy
+
+    def forward(self, feat_x, feat_y, evals_x, evals_y, evecs_trans_x, evecs_trans_y):
+        """
+        Forward pass to compute functional map
+        Args:
+            feat_x (torch.Tensor): feature vector of shape x. [B, Vx, C].
+            feat_y (torch.Tensor): feature vector of shape y. [B, Vy, C].
+            evals_x (torch.Tensor): eigenvalues of shape x. [B, K].
+            evals_y (torch.Tensor): eigenvalues of shape y. [B, K].
+            evecs_trans_x (torch.Tensor): pseudo inverse of eigenvectors of shape x. [B, K, Vx].
+            evecs_trans_y (torch.Tensor): pseudo inverse of eigenvectors of shape y. [B, K, Vy].
+
+        Returns:
+            C (torch.Tensor): functional map from shape x to shape y. [B, K, K].
+        """
+        Cxy = self.compute_functional_map(feat_x, feat_y, evals_x, evals_y, evecs_trans_x, evecs_trans_y)
+
+        if self.bidirectional:
+            Cyx = self.compute_functional_map(feat_y, feat_x, evals_y, evals_x, evecs_trans_y, evecs_trans_x)
+        else:
+            Cyx = None
+
+        return Cxy, Cyx
