@@ -129,7 +129,12 @@ dmypy.json
 .pyre/
 
 # experiments and results
-experiments/
+# ignore everything under experiments except log folders
+experiments/**
+
+!experiments/**/
+!experiments/**/log/
+!experiments/**/log/**
 results/
 
 # pycharm

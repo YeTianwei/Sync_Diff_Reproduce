@@ -1,0 +1,195 @@
+2026-05-22 11:14:52,622 INFO: 
+Version Information: 
+	Python: 3.8.13
+	PyTorch: 2.0.1+cu118
+	TorchVision: 0.15.2+cu118
+2026-05-22 11:14:52,623 INFO: 
+  name: dt4d
+  backend: dp
+  type: FMNetModel
+  num_gpu: 1
+  manual_seed: 1234
+  non-isometric: False
+  partial: False
+  path:[
+    resume_state: None
+    experiments_root: /data/ytw/Methods/Learning_based/Sync_Diff_Reproduce/experiments/dt4d
+    models: /data/ytw/Methods/Learning_based/Sync_Diff_Reproduce/experiments/dt4d/models
+    log: /data/ytw/Methods/Learning_based/Sync_Diff_Reproduce/experiments/dt4d/log
+  ]
+  datasets:[
+    train_dataset1:[
+      name: DT4DIntraTrain
+      type: PairDT4DDataset
+      phase: train
+      data_root: /data/ytw/datasets/DT4D_r/
+      inter_class: False
+      return_evecs: True
+      return_faces: True
+      num_evecs: 200
+      return_corr: False
+      return_dist: False
+    ]
+    train_dataset2:[
+      name: DT4DInterTrain
+      type: PairDT4DDataset
+      phase: train
+      data_root: /data/ytw/datasets/DT4D_r/
+      inter_class: True
+      return_evecs: True
+      return_faces: True
+      num_evecs: 200
+      return_corr: False
+      return_dist: False
+    ]
+    test_dataset:[
+      name: DT4DTest
+      type: PairDT4DDataset
+      phase: test
+      data_root: /data/ytw/datasets/DT4D_r/
+      inter_class: True
+      return_evecs: True
+      return_faces: True
+      num_evecs: 200
+      return_corr: True
+      return_dist: True
+    ]
+    batch_size: 1
+    num_worker: 16
+  ]
+  networks:[
+    feature_extractor:[
+      type: DiffusionNet
+      in_channels: 128
+      out_channels: 256
+      cache_dir: /data/ytw/datasets/DT4D_r/diffusion
+      input_type: wks
+    ]
+    fmap_net:[
+      type: FasterRegularizedFMNet
+      bidirectional: True
+    ]
+    permutation:[
+      type: Similarity
+      tau: 0.07
+    ]
+  ]
+  train:[
+    total_epochs: 10
+    optims:[
+      feature_extractor:[
+        type: Adam
+        lr: 0.001
+      ]
+    ]
+    schedulers:[
+      feature_extractor:[
+        type: CosineAnnealingLR
+        eta_min: 0.0001
+        T_max: 10
+      ]
+    ]
+    losses:[
+      surfmnet_loss:[
+        type: SURFMNetLoss
+        w_bij: 1.0
+        w_orth: 1.0
+        w_lap: 0.0
+      ]
+      align_loss:[
+        type: SquaredFrobeniusLoss
+        loss_weight: 1.0
+      ]
+      diffusion_loss:[
+        type: SynchronousDiffusionLoss
+        loss_weight: 1.0
+        num_random: 128
+        max_time: 0.0001
+      ]
+    ]
+  ]
+  val:[
+    val_freq: 4000
+    metrics:[
+      geo_error:[
+        type: calculate_geodesic_error
+      ]
+      plot_pck:[
+        type: plot_pck
+      ]
+    ]
+  ]
+  logger:[
+    print_freq: 20
+    save_checkpoint_freq: 4000
+  ]
+  is_train: True
+  dist: False
+  rank: 0
+  world_size: 1
+  root_path: /data/ytw/Methods/Learning_based/Sync_Diff_Reproduce
+
+2026-05-22 11:14:52,709 INFO: Dataset [PairDT4DDataset]-[DT4DIntraTrain] is built.
+2026-05-22 11:14:52,731 INFO: Dataset [PairDT4DDataset]-[DT4DInterTrain] is built.
+2026-05-22 11:14:52,737 INFO: Dataset [PairDT4DDataset]-[DT4DTest] is built.
+2026-05-22 11:14:52,737 INFO: Training statistics:
+	Number of train images: 8879
+	Dataset enlarge ratio: 1
+	Batch size: 1
+	World size (gpu number): 1
+	Require iter number per epoch: 8879
+	Total epochs: 10; iters: 88790.
+2026-05-22 11:14:52,737 INFO: Validation statistics:
+	Number of val images: 1200
+2026-05-22 11:14:52,743 INFO: Network [DiffusionNet] is created.
+2026-05-22 11:14:52,743 INFO: Network [FasterRegularizedFMNet] is created.
+2026-05-22 11:14:52,743 INFO: Network [Similarity] is created.
+2026-05-22 11:14:52,875 INFO: Network: DiffusionNet, with parameters: 510,336
+2026-05-22 11:14:52,875 INFO: Network: FasterRegularizedFMNet, with parameters: 0
+2026-05-22 11:14:52,875 INFO: Network: Similarity, with parameters: 0
+2026-05-22 11:14:52,875 INFO: Metric [function] is created.
+2026-05-22 11:14:52,875 INFO: Metric [function] is created.
+2026-05-22 11:14:52,876 INFO: Network fmap_net has no param to optimize. Ignore it.
+2026-05-22 11:14:52,876 INFO: Network permutation has no param to optimize. Ignore it.
+2026-05-22 11:14:52,876 INFO: Loss [SURFMNetLoss] is created.
+2026-05-22 11:14:52,876 INFO: Loss [SquaredFrobeniusLoss] is created.
+2026-05-22 11:14:52,876 INFO: Loss [SynchronousDiffusionLoss] is created.
+2026-05-22 11:14:52,878 INFO: Model [FMNetModel] is created.
+2026-05-22 11:14:52,878 INFO: Start training from epoch: 0, iter: 0
+2026-05-22 11:15:01,003 INFO: [dt4d..][epoch:  1, iter:      20, lr:(1.000e-03,)][eta: 7:16:07, time (data): 0.406 (0.125)]l_bij: 1.8302e+02 l_orth: 1.7904e+02 l_diff: 4.2205e+02 l_align: 1.4411e+02 l_total: 9.2822e+02 
+2026-05-22 11:15:08,056 INFO: [dt4d..][epoch:  1, iter:      40, lr:(1.000e-03,)][eta: 7:57:46, time (data): 0.379 (0.100)]l_bij: 1.6976e+02 l_orth: 1.6523e+02 l_diff: 4.2614e+02 l_align: 1.4072e+02 l_total: 9.0186e+02 
+2026-05-22 11:15:14,989 INFO: [dt4d..][epoch:  1, iter:      60, lr:(1.000e-03,)][eta: 8:09:08, time (data): 0.368 (0.093)]l_bij: 2.8272e+02 l_orth: 2.9018e+02 l_diff: 4.3039e+02 l_align: 1.4768e+02 l_total: 1.1510e+03 
+2026-05-22 11:15:22,365 INFO: [dt4d..][epoch:  1, iter:      80, lr:(1.000e-03,)][eta: 8:22:55, time (data): 0.369 (0.090)]l_bij: 2.6997e+02 l_orth: 2.6093e+02 l_diff: 4.0907e+02 l_align: 1.4230e+02 l_total: 1.0823e+03 
+2026-05-22 11:15:29,943 INFO: [dt4d..][epoch:  1, iter:     100, lr:(1.000e-03,)][eta: 8:34:08, time (data): 0.371 (0.089)]l_bij: 1.5496e+02 l_orth: 1.5244e+02 l_diff: 3.9592e+02 l_align: 1.4110e+02 l_total: 8.4442e+02 
+2026-05-22 11:15:37,375 INFO: [dt4d..][epoch:  1, iter:     120, lr:(1.000e-03,)][eta: 8:39:49, time (data): 0.371 (0.088)]l_bij: 1.7397e+02 l_orth: 1.7139e+02 l_diff: 4.0271e+02 l_align: 1.3759e+02 l_total: 8.8566e+02 
+2026-05-22 11:15:44,825 INFO: [dt4d..][epoch:  1, iter:     140, lr:(1.000e-03,)][eta: 8:44:03, time (data): 0.371 (0.086)]l_bij: 2.1078e+02 l_orth: 2.0641e+02 l_diff: 4.1872e+02 l_align: 1.3084e+02 l_total: 9.6675e+02 
+2026-05-22 11:15:51,746 INFO: [dt4d..][epoch:  1, iter:     160, lr:(1.000e-03,)][eta: 8:42:21, time (data): 0.368 (0.086)]l_bij: 2.4970e+02 l_orth: 2.3562e+02 l_diff: 4.2393e+02 l_align: 1.4245e+02 l_total: 1.0517e+03 
+2026-05-22 11:15:59,156 INFO: [dt4d..][epoch:  1, iter:     180, lr:(1.000e-03,)][eta: 8:44:59, time (data): 0.368 (0.084)]l_bij: 2.2575e+02 l_orth: 2.3793e+02 l_diff: 4.0695e+02 l_align: 1.4348e+02 l_total: 1.0141e+03 
+2026-05-22 11:16:06,223 INFO: [dt4d..][epoch:  1, iter:     200, lr:(1.000e-03,)][eta: 8:44:33, time (data): 0.367 (0.084)]l_bij: 2.0453e+02 l_orth: 1.9338e+02 l_diff: 3.8777e+02 l_align: 1.3379e+02 l_total: 9.1947e+02 
+2026-05-22 11:16:13,209 INFO: [dt4d..][epoch:  1, iter:     220, lr:(1.000e-03,)][eta: 8:43:38, time (data): 0.351 (0.081)]l_bij: 1.5417e+02 l_orth: 1.5667e+02 l_diff: 3.2836e+02 l_align: 1.2276e+02 l_total: 7.6196e+02 
+2026-05-22 11:16:20,329 INFO: [dt4d..][epoch:  1, iter:     240, lr:(1.000e-03,)][eta: 8:43:40, time (data): 0.354 (0.080)]l_bij: 9.8352e+01 l_orth: 1.0371e+02 l_diff: 3.6966e+02 l_align: 1.5001e+02 l_total: 7.2173e+02 
+2026-05-22 11:16:27,461 INFO: [dt4d..][epoch:  1, iter:     260, lr:(1.000e-03,)][eta: 8:43:45, time (data): 0.355 (0.081)]l_bij: 2.3608e+02 l_orth: 2.2126e+02 l_diff: 4.0166e+02 l_align: 1.4388e+02 l_total: 1.0029e+03 
+2026-05-22 11:16:35,114 INFO: [dt4d..][epoch:  1, iter:     280, lr:(1.000e-03,)][eta: 8:46:32, time (data): 0.362 (0.083)]l_bij: 2.0115e+02 l_orth: 1.9072e+02 l_diff: 3.6220e+02 l_align: 1.3275e+02 l_total: 8.8682e+02 
+2026-05-22 11:16:42,314 INFO: [dt4d..][epoch:  1, iter:     300, lr:(1.000e-03,)][eta: 8:46:43, time (data): 0.361 (0.083)]l_bij: 2.4927e+02 l_orth: 2.3578e+02 l_diff: 4.1531e+02 l_align: 1.6318e+02 l_total: 1.0635e+03 
+2026-05-22 11:16:49,287 INFO: [dt4d..][epoch:  1, iter:     320, lr:(1.000e-03,)][eta: 8:45:49, time (data): 0.359 (0.082)]l_bij: 1.4144e+02 l_orth: 1.3965e+02 l_diff: 3.4976e+02 l_align: 1.1554e+02 l_total: 7.4639e+02 
+2026-05-22 11:16:56,251 INFO: [dt4d..][epoch:  1, iter:     340, lr:(1.000e-03,)][eta: 8:44:58, time (data): 0.358 (0.082)]l_bij: 1.5646e+02 l_orth: 1.5614e+02 l_diff: 3.3491e+02 l_align: 1.2425e+02 l_total: 7.7176e+02 
+2026-05-22 11:17:03,130 INFO: [dt4d..][epoch:  1, iter:     360, lr:(1.000e-03,)][eta: 8:43:52, time (data): 0.356 (0.081)]l_bij: 2.3215e+02 l_orth: 2.1605e+02 l_diff: 3.9230e+02 l_align: 1.5832e+02 l_total: 9.9881e+02 
+2026-05-22 11:17:10,133 INFO: [dt4d..][epoch:  1, iter:     380, lr:(1.000e-03,)][eta: 8:43:20, time (data): 0.355 (0.081)]l_bij: 1.7893e+02 l_orth: 1.7197e+02 l_diff: 3.4272e+02 l_align: 1.1763e+02 l_total: 8.1125e+02 
+2026-05-22 11:17:17,415 INFO: [dt4d..][epoch:  1, iter:     400, lr:(1.000e-03,)][eta: 8:43:52, time (data): 0.356 (0.081)]l_bij: 1.3824e+02 l_orth: 1.3568e+02 l_diff: 3.2481e+02 l_align: 1.1294e+02 l_total: 7.1167e+02 
+2026-05-22 11:17:24,816 INFO: [dt4d..][epoch:  1, iter:     420, lr:(1.000e-03,)][eta: 8:44:46, time (data): 0.365 (0.082)]l_bij: 1.3007e+02 l_orth: 1.3074e+02 l_diff: 3.1517e+02 l_align: 1.1701e+02 l_total: 6.9299e+02 
+2026-05-22 11:17:32,470 INFO: [dt4d..][epoch:  1, iter:     440, lr:(1.000e-03,)][eta: 8:46:24, time (data): 0.374 (0.083)]l_bij: 2.1283e+02 l_orth: 1.9355e+02 l_diff: 3.6630e+02 l_align: 1.4780e+02 l_total: 9.2048e+02 
+2026-05-22 11:17:39,920 INFO: [dt4d..][epoch:  1, iter:     460, lr:(1.000e-03,)][eta: 8:47:15, time (data): 0.374 (0.084)]l_bij: 1.5054e+02 l_orth: 1.4761e+02 l_diff: 3.1764e+02 l_align: 1.1985e+02 l_total: 7.3564e+02 
+2026-05-22 11:17:47,120 INFO: [dt4d..][epoch:  1, iter:     480, lr:(1.000e-03,)][eta: 8:47:14, time (data): 0.370 (0.084)]l_bij: 1.9476e+02 l_orth: 1.8488e+02 l_diff: 3.3946e+02 l_align: 1.4269e+02 l_total: 8.6180e+02 
+2026-05-22 11:17:54,307 INFO: [dt4d..][epoch:  1, iter:     500, lr:(1.000e-03,)][eta: 8:47:11, time (data): 0.368 (0.083)]l_bij: 6.9709e+01 l_orth: 8.3967e+01 l_diff: 2.6527e+02 l_align: 9.6839e+01 l_total: 5.1578e+02 
+2026-05-22 11:18:01,726 INFO: [dt4d..][epoch:  1, iter:     520, lr:(1.000e-03,)][eta: 8:47:47, time (data): 0.368 (0.083)]l_bij: 2.1007e+02 l_orth: 1.9674e+02 l_diff: 3.4976e+02 l_align: 1.5018e+02 l_total: 9.0675e+02 
+2026-05-22 11:18:08,818 INFO: [dt4d..][epoch:  1, iter:     540, lr:(1.000e-03,)][eta: 8:47:26, time (data): 0.366 (0.083)]l_bij: 2.1173e+02 l_orth: 1.9248e+02 l_diff: 3.5643e+02 l_align: 1.4719e+02 l_total: 9.0782e+02 
+2026-05-22 11:18:15,725 INFO: [dt4d..][epoch:  1, iter:     560, lr:(1.000e-03,)][eta: 8:46:37, time (data): 0.364 (0.083)]l_bij: 1.6000e+02 l_orth: 1.5184e+02 l_diff: 3.1486e+02 l_align: 1.1268e+02 l_total: 7.3937e+02 
+2026-05-22 11:18:23,153 INFO: [dt4d..][epoch:  1, iter:     580, lr:(1.000e-03,)][eta: 8:47:10, time (data): 0.365 (0.082)]l_bij: 1.4058e+02 l_orth: 1.3872e+02 l_diff: 3.0548e+02 l_align: 1.0951e+02 l_total: 6.9429e+02 
+2026-05-22 11:18:30,595 INFO: [dt4d..][epoch:  1, iter:     600, lr:(1.000e-03,)][eta: 8:47:43, time (data): 0.365 (0.082)]l_bij: 1.9879e+02 l_orth: 1.8478e+02 l_diff: 3.3258e+02 l_align: 1.4648e+02 l_total: 8.6264e+02 
+2026-05-22 11:18:37,744 INFO: [dt4d..][epoch:  1, iter:     620, lr:(1.000e-03,)][eta: 8:47:31, time (data): 0.356 (0.079)]l_bij: 1.7172e+02 l_orth: 1.6053e+02 l_diff: 3.1010e+02 l_align: 1.2071e+02 l_total: 7.6306e+02 
+2026-05-22 11:18:45,037 INFO: [dt4d..][epoch:  1, iter:     640, lr:(1.000e-03,)][eta: 8:47:40, time (data): 0.361 (0.081)]l_bij: 7.2842e+01 l_orth: 8.5940e+01 l_diff: 2.8276e+02 l_align: 1.0328e+02 l_total: 5.4482e+02 
+2026-05-22 11:18:51,858 INFO: [dt4d..][epoch:  1, iter:     660, lr:(1.000e-03,)][eta: 8:46:44, time (data): 0.354 (0.081)]l_bij: 1.7118e+02 l_orth: 1.5924e+02 l_diff: 2.9616e+02 l_align: 1.2191e+02 l_total: 7.4849e+02 
+2026-05-22 11:18:59,065 INFO: [dt4d..][epoch:  1, iter:     680, lr:(1.000e-03,)][eta: 8:46:41, time (data): 0.355 (0.081)]l_bij: 1.5328e+02 l_orth: 1.5067e+02 l_diff: 2.9414e+02 l_align: 1.1262e+02 l_total: 7.1071e+02 
+2026-05-22 11:19:06,386 INFO: [dt4d..][epoch:  1, iter:     700, lr:(1.000e-03,)][eta: 8:46:53, time (data): 0.358 (0.081)]l_bij: 1.0344e+02 l_orth: 1.1271e+02 l_diff: 3.0149e+02 l_align: 9.9779e+01 l_total: 6.1742e+02 
+2026-05-22 11:19:13,417 INFO: [dt4d..][epoch:  1, iter:     720, lr:(1.000e-03,)][eta: 8:46:28, time (data): 0.357 (0.082)]l_bij: 1.7538e+02 l_orth: 1.6975e+02 l_diff: 3.0398e+02 l_align: 1.3085e+02 l_total: 7.7996e+02 
+2026-05-22 11:19:20,405 INFO: [dt4d..][epoch:  1, iter:     740, lr:(1.000e-03,)][eta: 8:45:59, time (data): 0.355 (0.082)]l_bij: 1.6274e+02 l_orth: 1.5904e+02 l_diff: 2.9456e+02 l_align: 1.2246e+02 l_total: 7.3880e+02 
