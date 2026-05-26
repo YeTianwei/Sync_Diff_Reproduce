@@ -38,7 +38,7 @@ networks:
     input_type: xyz
   fmap_net:
     type: FasterRegularizedFMNet
-    bidirectional: false
+    bidirectional: true
   permutation:
     type: Similarity
     tau: 0.07

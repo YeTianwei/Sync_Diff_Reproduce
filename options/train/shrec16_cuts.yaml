@@ -17,7 +17,7 @@ datasets:
   train_dataset:
     name: Shrec16Train
     type: PairShrec16Dataset
-    data_root: ../data/SHREC16/
+    data_root: /data/ytw/datasets/SHREC16/
     cut_type: cuts
     return_evecs: True
     return_faces: True
@@ -27,7 +27,7 @@ datasets:
   test_dataset:
     name: Shrec16Val
     type: PairShrec16Dataset
-    data_root: ../data/SHREC16_test/
+    data_root: /data/ytw/datasets/SHREC16_test/
     cut_type: cuts
     return_evecs: True
     return_faces: True
@@ -44,7 +44,7 @@ networks:
     type: DiffusionNet
     in_channels: 3
     out_channels: 256
-    cache_dir: ../data/SHREC16/cuts/diffusion
+    cache_dir: /data/ytw/datasets/SHREC16/cuts/diffusion
     input_type: xyz
   fmap_net:
     type: FasterRegularizedFMNet

@@ -135,7 +135,11 @@ experiments/**
 !experiments/**/
 !experiments/**/log/
 !experiments/**/log/**
-results/
+
+results/**
+!results/**/
+!results/**/log/
+!results/**/log/**
 
 # pycharm
 .idea/

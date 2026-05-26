@@ -17,7 +17,7 @@ datasets:
     name: DT4DIntraTrain
     type: PairDT4DDataset
     phase: train
-    data_root: ../data/DT4D_r/
+    data_root: /data/ytw/datasets/DT4D_r/
     inter_class: False
     return_evecs: True
     return_faces: True
@@ -29,7 +29,6 @@ datasets:
     type: PairSmalDataset
     phase: train
     data_root: /data/ytw/datasets/SMAL_r/
-    interclass: False
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -39,7 +38,7 @@ datasets:
     name: FaustTrain
     type: PairFaustDataset
     phase: train
-    data_root: ../data/FAUST_r
+    data_root: /data/ytw/datasets/FAUST_r
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -49,7 +48,7 @@ datasets:
     name: ScapeTrain
     type: PairScapeDataset
     phase: train
-    data_root: ../data/SCAPE_r
+    data_root: /data/ytw/datasets/SCAPE_r
     return_evecs: True
     return_faces: True
     num_evecs: 200
@@ -59,7 +58,7 @@ datasets:
     name: CutsVal
     type: PairShrec16Dataset
     cut_type: cuts
-    data_root: ../data/SHREC16_test/
+    data_root: /data/ytw/datasets/SHREC16_test/
     return_evecs: true
     return_faces: true
     num_evecs: 200
@@ -74,7 +73,7 @@ networks:
     type: DiffusionNet
     in_channels: 3
     out_channels: 256
-    cache_dir: ../data/DT4D_r/diffusion
+    cache_dir: /data/ytw/datasets/DT4D_r/diffusion
     input_type: xyz
   fmap_net:
     type: FasterRegularizedFMNet
