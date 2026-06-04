@@ -67,9 +67,9 @@ train:
       loss_weight: 1.0
       num_random: 128
       max_time: 1.0e-4
-    dirichlet_loss:
-      type: DirichletLoss
-      loss_weight: 5.0
+    # dirichlet_loss:
+    #   type: DirichletLoss
+    #   loss_weight: 5.0
 
 # validation setting
 val:

@@ -1,29 +1,31 @@
 # general setting
-name: topkids
+name: smal
 backend: dp # DataParallel
 type: FMNetModel
 num_gpu: auto
 manual_seed: 1234
 refine: 15
-non-isometric: false
+non-isometric: true
 partial: false
 visualize: true
 
 # path
 path:
-  resume_state: experiments/topkids/models/final.pth
+  resume_state: experiments/smal_wks/models/final.pth
   resume: false
 
 # datasets
 datasets:
   test_dataset:
     name: Val
-    type: PairTopKidsDataset
+    type: PairSmalDataset
     phase: test
-    data_root: /data/ytw/datasets/TOPKIDS/
+    data_root: /data/ytw/datasets/SMAL_r/
+    category: true
     return_evecs: true
     return_faces: true
     num_evecs: 200
+    return_corr: true
     return_dist: true
 
 # network setting
@@ -32,11 +34,11 @@ networks:
     type: DiffusionNet
     in_channels: 128
     out_channels: 256
-    cache_dir: /data/ytw/datasets/TOPKIDS/diffusion
+    cache_dir: /data/ytw/datasets/SMAL_r/diffusion
     input_type: wks
   fmap_net:
     type: FasterRegularizedFMNet
-    bidirectional: false
+    bidirectional: true
   permutation:
     type: Similarity
     tau: 0.07
@@ -64,10 +66,10 @@ train:
       type: SynchronousDiffusionLoss
       loss_weight: 1.0
       num_random: 128
-      max_time: 1.0e-2
-    # dirichlet_loss:
-    #   type: DirichletLoss
-    #   loss_weight: 5.0
+      max_time: 1.0e-4
+    dirichlet_loss:
+      type: DirichletLoss
+      loss_weight: 5.0
 
 # validation setting
 val:

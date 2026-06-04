@@ -1,0 +1,121 @@
+2026-05-26 17:48:58,315 INFO: 
+Version Information: 
+	Python: 3.8.13
+	PyTorch: 2.0.1+cu118
+	TorchVision: 0.15.2+cu118
+2026-05-26 17:48:58,315 INFO: 
+  name: topkids
+  backend: dp
+  type: FMNetModel
+  num_gpu: 1
+  manual_seed: 1234
+  refine: 15
+  non-isometric: False
+  partial: False
+  visualize: True
+  path:[
+    resume_state: experiments/topkids/models/final.pth
+    resume: False
+    results_root: /data/ytw/Methods/Learning_based/Sync_Diff_Reproduce/results/topkids
+    log: /data/ytw/Methods/Learning_based/Sync_Diff_Reproduce/results/topkids/log
+    visualization: /data/ytw/Methods/Learning_based/Sync_Diff_Reproduce/results/topkids/visualization
+  ]
+  datasets:[
+    test_dataset:[
+      name: Val
+      type: PairTopKidsDataset
+      phase: test
+      data_root: /data/ytw/datasets/TOPKIDS/
+      return_evecs: True
+      return_faces: True
+      num_evecs: 200
+      return_dist: True
+    ]
+  ]
+  networks:[
+    feature_extractor:[
+      type: DiffusionNet
+      in_channels: 128
+      out_channels: 256
+      cache_dir: /data/ytw/datasets/TOPKIDS/diffusion
+      input_type: wks
+    ]
+    fmap_net:[
+      type: FasterRegularizedFMNet
+      bidirectional: False
+    ]
+    permutation:[
+      type: Similarity
+      tau: 0.07
+      hard: True
+    ]
+  ]
+  train:[
+    optims:[
+      feature_extractor:[
+        type: Adam
+        lr: 0.001
+      ]
+    ]
+    schedulers:[
+      feature_extractor:[
+        type: none
+      ]
+    ]
+    losses:[
+      surfmnet_loss:[
+        type: SURFMNetLoss
+        w_bij: 1.0
+        w_orth: 1.0
+        w_lap: 0.0
+      ]
+      align_loss:[
+        type: SquaredFrobeniusLoss
+        loss_weight: 1.0
+      ]
+      diffusion_loss:[
+        type: SynchronousDiffusionLoss
+        loss_weight: 1.0
+        num_random: 128
+        max_time: 0.01
+      ]
+    ]
+  ]
+  val:[
+    metrics:[
+      geo_error:[
+        type: calculate_geodesic_error
+      ]
+      plot_pck:[
+        type: plot_pck
+      ]
+    ]
+  ]
+  is_train: False
+  dist: False
+  rank: 0
+  world_size: 1
+
+2026-05-26 17:48:58,337 INFO: Dataset [PairTopKidsDataset]-[Val] is built.
+2026-05-26 17:48:58,337 INFO: Number of test images in Val: 25
+2026-05-26 17:48:58,344 INFO: Network [DiffusionNet] is created.
+2026-05-26 17:48:58,344 INFO: Network [FasterRegularizedFMNet] is created.
+2026-05-26 17:48:58,344 INFO: Network [Similarity] is created.
+2026-05-26 17:48:58,485 INFO: Network: DiffusionNet, with parameters: 510,336
+2026-05-26 17:48:58,485 INFO: Network: FasterRegularizedFMNet, with parameters: 0
+2026-05-26 17:48:58,485 INFO: Network: Similarity, with parameters: 0
+2026-05-26 17:48:58,485 INFO: Metric [function] is created.
+2026-05-26 17:48:58,485 INFO: Metric [function] is created.
+2026-05-26 17:48:58,486 INFO: Network fmap_net has no param to optimize. Ignore it.
+2026-05-26 17:48:58,486 INFO: Network permutation has no param to optimize. Ignore it.
+2026-05-26 17:48:58,486 INFO: Loss [SURFMNetLoss] is created.
+2026-05-26 17:48:58,486 INFO: Loss [SquaredFrobeniusLoss] is created.
+2026-05-26 17:48:58,487 INFO: Loss [SynchronousDiffusionLoss] is created.
+2026-05-26 17:48:58,536 INFO: Resuming network: feature_extractor
+2026-05-26 17:48:58,536 INFO: Network fmap_net has no param. Ignore it.
+2026-05-26 17:48:58,536 INFO: Network permutation has no param. Ignore it.
+2026-05-26 17:48:58,536 INFO: Model [FMNetModel] is created.
+2026-05-26 17:48:58,536 INFO: Testing PairTopKidsDataset...
+2026-05-26 17:56:34,920 INFO: Avg time: 16.6112
+2026-05-26 17:56:35,029 INFO: Val auc: 0.6921
+2026-05-26 17:56:35,029 INFO: Val avg error: 0.0583
